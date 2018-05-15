@@ -1,0 +1,358 @@
+---
+title: "What I find important when R Programming"
+subtitle: "and Recent Cool Features in R"
+author: Martin Maechler, ETH Zurich; R Core Team
+date: May 15, 2018 @ eRum Budapest
+output:
+  ioslides_presentation:
+    keep_md: true
+    mathjax: local
+    self_contained: false
+    widescreen: true
+---
+
+<!-- smaller: true <<  use  { .smaller }  for *some* slide
+
+NB:     toc: true , toc_depth: 2 ... have no effect for html presentations
+-->
+
+<!-- inspite documentation:  the  { .build } does not seem to work!  -->
+
+## R and Me: How I got envolved
+
+> - History of R has been well described on   [Wikipedia](https://en.wikipedia.org/wiki/R_(programming_language))
+> - notably its [ref. [19]](https://en.wikipedia.org/wiki/R_programming_language#cite_note-19) :
+> - I became involved in 1993;
+> - 1995: R became _Free Software_ (licenced by GPL.  *FOSS*:= Free and Open-Source),
+> - ... have been part of the _R Core_ team since its formation in 1997.
+
+## R is made by R Core Team
+![R Core Team as on www.r-project.org](www.r-project.org_R-core.png)
+<!---	fails to *scale* the image ==> use this: -->
+<!-- <img src='www.r-project.org_R-core.png' style="height: 10%; " /> -->
+<!-- 	<p class='caption'>R Core Team (from `www.r-project.org`)</p> -->
+
+## R -- made by R Core Team | https://www.r-project.org/contributors.html { .smaller }
+
+... Since mid-1997 there has been a core group with write access to the R source, currently consisting  of
+
+|                |                 |                  |                  |                |
+| -------------- | --------------- | ---------------- | ---------------- |----------------|
+|  Douglas Bates | John Chambers   | Peter Dalgaard   | Robert Gentleman | Kurt Hornik    |
+|  Ross Ihaka    | Tomas Kalibera  | Michael Lawrence | Friedrich Leisch | Uwe Ligges     |
+|  Thomas Lumley | Martin Maechler | Martin Morgan    | Paul Murrell     | Martyn Plummer |
+|  Brian Ripley  | Deepayan Sarkar | Duncan Temple Lang | Luke Tierney   | Simon Urbanek  |
+
+plus Heiner Schwarte up to October 1999, Guido Masarotto up to June 2003,
+Stefano Iacus up to July 2014, Seth Falcon up to August 2015, and
+Duncan Murdoch up to September 2017.
+
+
+## R  ==  "base" + packages { .smaller }
+R : became "viral" thanks to CRAN's package system (Kurt Hornik and CRAN team):
+![](nrCRANpkg.png)
+<!-- {width=140%} -->
+<!-- <img src='nrCRANpkg.png' style="height: 95%;" /> -->
+
+
+<!------------------------------------------------------->
+
+# R Programming | 1. The __ART__ of R Programming
+
+## Learn from the Masters
+
+<!-- ![Obi-Wan Kenobi to Luke Skywalker: "Use the Force, Luke!"  ('Starwars')](use-the-source-luke.jpg) -->
+<img src='use-the-source-luke.jpg' title='fig:' style="width:70%" />
+<p class='caption'>Obi-Wan Kenobi to Luke Skywalker: &quot;Use the Force, Luke!&quot; (&#39;Starwars&#39;)</p>
+
+
+## Use the Source! | Read R Source code (to learn from the Masters) { .build }
+
+1. Instead of just "googling" and installing the package:
+  Learn to  "Use the source!" (a small effort, yes...): see Jenny Brian's
+  https://github.com/jennybc/access-r-source
+
+2. Download the R source, and package *sources* instead of just installing them.
+    - CRAN (and Bioconductor) should be your *primary* source,
+    - everthing else (github, ...) only if you know that the authors *and* the
+	  website are trustworthy
+3. Do read package sources, even before you write your first package.
+  Hence, start to *love* files  such as `<mypkg>_<n.m>.tar.gz`
+
+<!------------------------------------------------------->
+
+# R Programming | 2. R Programming with __STYLE__
+
+## The Stackoverflow Keyboard
+May 7, 2018 on the "I'm Programmer" page:
+https://www.improgrammer.net/stackoverflow-keyboard/
+
+![](StackOverflow-keyboard.png)
+<!-- [Stackoverflow Keyboard](StackOverflow-keyboard.png) -->
+
+
+<!-- ## DRY, not WET ! | DRY : *D*on't *R*epeat *Y*ourself -->
+## DRY, not WET !
+From ![Wikipedia](Wikipedia-logo.jpeg), the free encyclopedia
+
+- DRY:  *D*on't *R*epeat *Y*ourself
+
+> - DRY principle := "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system".
+
+> - By Andy Hunt and Dave Thomas book __The Pragmatic Programmer__
+- When DRY principle is applied successfully, a modification of any single element of a system does not require a change in other logically  unrelated elements. Additionally, elements that are logically related all change predictably and uniformly, and are thus kept in sync.
+
+> - ...
+
+## DRY vs WET solutions
+
+- Violations of *DRY* : typically referred to as *WET* solutions
+
+> - "WET" stands for either
+>     1.  _"write everything twice"_,
+>     2. _"we enjoy typing"_ , or
+>     3. _"waste everyone's time"_.
+
+> - Copy-Paste Programming is **bad**
+
+> - Question: do useRs and progRammers prefer WET solutions  ??
+
+
+## Few remarks about style { .smaller .build }
+
+- Please^[1] use the "left arrow":
+  the nice and expressive  ` <- ` instead of the  ` = ` which has many other meanings in R.
+  (R is a functional language: Assignments should _stand out_ ):
+    - Rstudio and ESS  both have shortcut  `[Alt]-` to produce
+	\textvisiblespace{<-}\textvisiblespace
+	  $\textvisiblespace`<-`\texttt{\char32} (4 chars, incl. 2 spaces)
+
+([1]. Martin M&auml;chler; Hadley Wickham in http://adv-r.had.co.nz/Style.html])
+
+- *Do* comment your R code:  *You* ("your future self") will be glad already in 1 month
+
+- Use _spaces_ in your R code ..
+   and be *better* than pretty printers (e.g. from R's source):
+
+```{R, eval=FALSE}
+droplevels.data.frame <- function(x, except = NULL, exclude, ...)
+  {
+    ix <- vapply(x, is.factor, NA)
+    if (!is.null(except)) ix[except] <- FALSE
+    x[ix] <- if(missing(exclude))
+                  lapply(x[ix], droplevels)
+             else lapply(x[ix], droplevels, exclude=exclude)
+    x
+  }
+```
+
+- Apart from data frames, there are also **matrices**; they are sometimes *much more efficient*
+   (e.g., Colin Gillespie's _"Efficient R Programming"_)
+
+
+<!------------------------------------------------------->
+
+# R Programming | 3. Functions, Testing, Packages
+
+## Everthing that happens in R ...
+
+John Chambers:   In R,
+
+> -   Everything that exists
+>     - is an **Object**
+
+> -   Everything that happens
+>      - is a **function call**
+
+> - You call functions all the time
+	-  ==> do **write** own functions all the time, e.g. *inside* other functions
+
+> - Do learn about
+```{R, eval=FALSE}
+lapply(X, FUN, ...)
+do.call(<FUN>, args, ...)
+```
+
+## Test (in) your functions { .build }
+
+- Can use
+```
+	if( <problem> )  stop(.....)
+```
+- Nicer, as "assertion":
+```
+    stopifnot( <must_be_1> , <must_be_2> ,  ...)
+	```
+
+or alternatively, since R 3.5.0,
+```
+	stopifnot(exprs = {
+	  <must_be_1>
+      <must_be_2>
+	  ...
+    })
+```
+
+(and yes, I know there are about a dozen packages for testing ...)
+
+
+## Put your functions in a package
+
+- and test them even more thoroughly
+- write nice help pages **including** examples
+- vignettes, ...
+
+ .... (building R packages that are sustainable  --- another lecture) ...
+
+<!------------------------------------------------------->
+
+# 4. New in R 3.5.0 | and more in future R : ALTREP
+
+## NEWS - from new releases of R :
+
+- Click "News" on R webpage: https://www.r-project.org/news.html
+    - linking to https://cran.r-project.org/doc/manuals/r-release/NEWS.html
+    - *Many* new features , notably
+- ALTREP (not prominent in NEWS) is _remarkable_ and may have large impact,
+  Documented in R's source [branches/ALTREP](https://svn.r-project.org/R/branches/ALTREP/ALTREP.html).
+  (or with extra exploration features from its [github mirror](https://github.com/wch/r-source/).
+
+## ALTREP | ALTernative object REPresentations
+
+- At Stanford, 2016 after __useR!__, Gabe Becker talked about his ideas on
+the potential of **alternative object representations** and (R Core member) Luke Tierney
+agreed to form a working group as some of this had been floating around for quite some time
+<!-- , also  mentioned in earlier DSC presentations e.g., by "alternative R" implementors. -->
+
+- Provisional docu: https://svn.r-project.org/R/branches/ALTREP/ALTREP.html
+(Orig: Nov.2016; with updates up to Nov. 13, 2017)
+
+- another Talk of Luke (at Ross Ihaka's farewell conference, Dec. 2017):
+  http://homepage.stat.uiowa.edu/~luke/talks/nzsa-2017.pdf
+
+
+## ALTREP -- as already  in R 3.5.0 {.smaller}
+
+Adapted from https://svn.r-project.org/R/branches/ALTREP/ALTREP.html#sample_implementations :
+
+### Compact Integer Vectors
+
+- Vectors  `n1:n2` , `seq_along(n)` and `seq_len(m)`:
+  represented compactly in terms of their start and end values.
+
+In R 3.4.4 (and older):
+```{r, echo=FALSE, results="verbatim"}
+writeLines(readLines(textConnection("> x <- 1:1e10
+Error: cannot allocate vector of size 74.5 Gb"
+)))
+```
+
+where in `R 3.5.0++` and the ALTREP branch it works (very fast):
+```{R, x-def}
+x <- 1:1e10
+```
+
+## Compact Integer Vectors (2) {.smaller}
+
+- Implication: for __loop__ over a large range of integers that
+stops early no longer needs to allocate and fill in the full vector:
+In `R 3.5.0++` (and the ALTREP branch), this is instantaneous (a few ms), where in `R 3.4.4` it needs about 1.5 sec:
+```{r,  for_1e9}
+system.time(for (i in 1:1e9) break)
+```
+
+The `.Internal(inspect())` function shows that a compact
+representation has been used:
+
+```{R, intern-insp}
+.Internal(inspect(x))
+```
+
+## Compact Integer Vectors (3)
+
+`sum(x)` is very smart (using alleged Gauss-as-first-grader formula $n(n+1)/2$):
+```{R, sum}
+system.time(print(sum(x)))
+n <- length(x)
+sum(x) == n*(n+1)/2
+```
+and `mean(x)` has been adapted to extract (in blocks) and *not* expand `x` (but still is much too slow here)
+
+## Compact Integer Vectors (4)  {.smaller}
+
+The following R code is not even imaginable in regular R before R 3.5.0:
+```{r, new-only}
+x <- 1:1e15
+object.size(x) # 8000'000'000'000'048 bytes : 8000 TBytes -- ok, not really
+is.unsorted(x) # FALSE : i.e., R's *knows* it is sorted
+
+xs <- sort(x)  # instantaneous !
+.Internal(inspect(xs))
+
+anyNA(x)       # FALSE : i.e., R's *knows* it contains no NA's
+
+## (This does *NOT* fit on the slide:
+try( l4 <- x < 4 ) # no way [in principle *could* be compacted]
+x <- 10:1e15
+.Internal(inspect(x))
+```
+
+## Deferred String Conversions {.smaller}
+
+- Conversion of numbers to strings is __expensive__
+- Happens (with rarely needed!) default row labels on design matrices (created as)
+```{R, eval=FALSE}
+as.character(1 : nrow)
+```
+
+In `ALTREP`, the C-internal `coerce()` function returns a __deferred string__ coercion.
+Examples:
+```{R, deferred-asChar}
+i8 <- 1:1e8
+ce8 <- as.character(i8)
+.Internal(inspect(ce8))
+```
+
+## Deferred String Conversions -2- {.smaller}
+
+```{R, deferred-2}
+system.time(print(c35 <- ce8[1e7 + 3:5])) # very fast
+.Internal(inspect(ce8)) # unchanged
+head(ce8)
+.Internal(inspect(ce8)) # unchanged
+```
+
+## Deferred String Conversions -3- {.smaller}
+
+```{R, deferred-3}
+.Internal(inspect(ce6 <- as.character(1 : 1e6))) # shorter version
+system.time( ce6[1] <- "a" ) # 350 ms
+.Internal(inspect(ce6)) # now <expanded string conversion>
+```
+
+## Speedup for `lm()` {.smaller}
+Benefit: significant speedup in `lm()` for fitting a model with large $n$ (R 3.5.0++):
+```{R, lm-lrg, cache=TRUE}
+n <- 1e7 ;  x <- rnorm(n) ;  y <- rnorm(n)
+system.time(lm(y ~ x))
+system.time(lm(y ~ x))
+```
+Where the `elapsed` timings were `11.3` and `8.8` in R 3.4.4 (on same laptop).
+
+Speedup: due entirely to **not creating the row labels** for the design matrix.  
+Yes, have faster ways: `.lm.fit(cbind(1, x), y)` is  $3 \times$  faster.
+<!---------------------------------------->
+
+## Summary:
+
+-  Martin M.  $\in$  R Core --- R Core makes "base R"
+-  The __ART__ of R Programming : _Use the Source, Luke!_
+-  R Programming with __STYLE__ : _Aim for DRY, not WET!_
+-  Functions, Testing, Packages : Write more functions, incl.\ 1-liners
+-  New in R 3.5.0 (w/ more impact in the future): <u>ALT</u>ernative <u>REP</u>resentations
+
+<p> &nbsp; </p>
+
+> - _That's all Folks!_
+
+> - Questions, Remarks ?
